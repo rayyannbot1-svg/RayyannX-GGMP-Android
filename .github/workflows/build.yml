@@ -41,17 +41,13 @@ jobs:
           fi
           echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
 
+        
       - name: Build APK
         run: |
           cd "$PROJECT_DIR"
-          gradle assembleDebug
-
-      - name: Build APK
-        run: |
-          cd "$PROJECT_DIR"
-          if [ -f gradle.properties ]; then
-            grep -v '^org.gradle.jvmargs=' gradle.properties > gradle.properties.tmp
-            mv gradle.properties.tmp gradle.properties
-          fi
-          echo 'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8' >> gradle.properties
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          kotlin.code.style=official
+          EOF
           gradle --no-daemon assembleDebug
