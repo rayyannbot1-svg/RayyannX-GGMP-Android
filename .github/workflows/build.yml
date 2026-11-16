@@ -25,12 +25,11 @@ jobs:
           gradle-version: '8.9'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android SDK
         run: |
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
-
+         sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
       - name: Extract Android project
         run: |
           mkdir source
