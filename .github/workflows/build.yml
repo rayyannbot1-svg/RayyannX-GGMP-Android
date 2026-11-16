@@ -22,14 +22,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          accept-android-sdk-licenses: false
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Install Android SDK
-        run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       - name: Extract Android project
         run: |
@@ -43,18 +36,12 @@ jobs:
           echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
 
       - name: Build APK
-        env:
-          JAVA_OPTS: ""
-          JDK_JAVA_OPTIONS: ""
-          JAVA_TOOL_OPTIONS: ""
-          GRADLE_OPTS: ""
         run: |
           cd "$PROJECT_DIR"
           printf '%s\n' \
             'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8' \
             'android.useAndroidX=true' \
             'kotlin.code.style=official' > gradle.properties
-          unset JAVA_OPTS JDK_JAVA_OPTIONS JAVA_TOOL_OPTIONS GRADLE_OPTS
           gradle --no-daemon assembleDebug
 
       - name: Upload APK
