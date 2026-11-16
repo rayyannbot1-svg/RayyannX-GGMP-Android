@@ -19,17 +19,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3
 
       - name: Install Android SDK
         run: |
-         sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Extract Android project
         run: |
           mkdir source
@@ -41,13 +37,23 @@ jobs:
           fi
           echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
 
-        
       - name: Build APK
+        env:
+          JAVA_OPTS: ""
+          JDK_JAVA_OPTIONS: ""
+          JAVA_TOOL_OPTIONS: ""
+          GRADLE_OPTS: ""
         run: |
           cd "$PROJECT_DIR"
-          cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.useAndroidX=true
-          kotlin.code.style=official
-          EOF
+          printf '%s\n' \
+            'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8' \
+            'android.useAndroidX=true' \
+            'kotlin.code.style=official' > gradle.properties
+          unset JAVA_OPTS JDK_JAVA_OPTIONS JAVA_TOOL_OPTIONS GRADLE_OPTS
           gradle --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RayyannX-GGMP-APK
+          path: '**/build/outputs/apk/debug/*.apk'
